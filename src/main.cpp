@@ -21,7 +21,8 @@ void sendpong(int clientaddr)
     }
     send(clientaddr, response, strlen(response), 0);
 
-    // std::memset(buffer, 0, sizeof(buffer));
+    std::memset(buffer, 0, sizeof(buffer));
+    close(clientaddr);
   }
 }
 int main(int argc, char **argv)
