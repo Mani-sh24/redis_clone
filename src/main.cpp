@@ -61,9 +61,6 @@ int main(int argc, char **argv)
   std::cout << "Client connected\n";
   char buffer[1024];
   const char *response = "+PONG\r\n";
-
-  const char *response = "+PONG\r\n";
-  send(client_fd, response, strlen(response), 0);
   while (true)
   {
     ssize_t bytes_recieved = recv(client_fd, buffer, strlen(buffer), 0);
