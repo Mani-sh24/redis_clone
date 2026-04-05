@@ -7,10 +7,22 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include<thread>
-void sendpong(int clientaddr){
+#include <thread>
+void sendpong(int clientaddr)
+{
   const char *response = "+PONG\r\n";
-  send(clientaddr, response, strlen(response), 0);
+  char buffer[1024];
+  while (true)
+  {
+    ssize_t bytes_recieved = recv(clientaddr, buffer, sizeof(buffer), 0);
+    if (bytes_recieved <= 0)
+    {
+      break;
+    }
+    send(clientaddr, response, strlen(response), 0);
+
+    std::memset(buffer, 0, sizeof(buffer));
+  }
 }
 int main(int argc, char **argv)
 {
@@ -61,21 +73,16 @@ int main(int argc, char **argv)
 
   // Uncomment the code below to pass the first stage
   //
-  
-  
   while (true)
   {
     int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
-  std::cout << "Client connected\n";
-  char buffer[1024];
-    ssize_t bytes_recieved = recv(client_fd, buffer, sizeof(buffer), 0);
-    if (bytes_recieved <= 0)
-    {
+    std::cout << "Client connected\n";
+    if (client_fd < 0)
       break;
-    }
-    std::thread(sendpong , client_fd).detach();
-    // std::memset(buffer, 0, sizeof(buffer));
+
+    std::thread(sendpong, client_fd);
   }
+
   close(server_fd);
   return 0;
 }
