@@ -66,8 +66,9 @@ int main(int argc, char **argv)
     ssize_t bytes_recieved = recv(client_fd, buffer, strlen(buffer), 0);
     if (bytes_recieved <= 0)
     {
-      send(client_fd, response, strlen(response), 0);
+      break;
     }
+    send(client_fd, response, strlen(response), 0);
     std::memset(buffer, 0, sizeof(buffer));
 
   }
