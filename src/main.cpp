@@ -80,7 +80,7 @@ int main(int argc, char **argv)
     if (client_fd < 0)
       break;
 
-    std::thread(sendpong, client_fd);
+    std::thread(sendpong, client_fd).detach();
   }
 
   close(server_fd);
