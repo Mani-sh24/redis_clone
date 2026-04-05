@@ -69,7 +69,7 @@ int main(int argc, char **argv)
       break;
     }
     send(client_fd, response, strlen(response), 0);
-    // std::memset(buffer, 0, sizeof(buffer));
+    std::memset(buffer, 0, sizeof(buffer));
 
   }
   close(server_fd);
