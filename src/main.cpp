@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   const char *response = "+PONG\r\n";
   while (true)
   {
-    ssize_t bytes_recieved = recv(client_fd, buffer, strlen(buffer), 0);
+    ssize_t bytes_recieved = recv(client_fd, buffer, sizeof(buffer), 0);
     if (bytes_recieved <= 0)
     {
       break;
