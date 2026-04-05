@@ -73,7 +73,7 @@ int main(int argc, char **argv)
       break;
     }
     std::thread(sendpong , client_fd).detach();
-    std::memset(buffer, 0, sizeof(buffer));
+    // std::memset(buffer, 0, sizeof(buffer));
   }
   close(server_fd);
   return 0;
