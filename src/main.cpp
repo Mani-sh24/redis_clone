@@ -19,12 +19,11 @@ void handle_commands(int clientaddr)
   char buffer[1024];
   while (true)
   {
-    ssize_t bytes_recieved = recv(clientaddr, buffer, sizeof(buffer), 0);
+   ssize_t bytes_recieved = recv(clientaddr, buffer, sizeof(buffer), 0);
     if (bytes_recieved <= 0)
-    {
       break;
-    }
-    auto [value, consumed] = prcoess_parser(buffer, 0);
+
+    auto [value, consumed] = prcoess_parser(buffer, bytes_recieved);
     if (value.type == RespType::ARRAY && value.array.size() > 0)
     {
       string command = value.array[0].str;
@@ -43,20 +42,11 @@ void handle_commands(int clientaddr)
       else if (command == "SET")
       {
         RespValue res;
-        auto [it, inserted] = storage.emplace(
-            value.array[1].str,
-            value.array[2].str);
-        if (inserted)
-        {
-          res.type = RespType::STRING;
-          res.str = "OK";
-          response = serialise(res);
-        }
-        else
-        {
-          res.type = RespType::ERROR;
-          res.str = "ERR couldnt save the item";
-        }
+        storage[value.array[1].str] = value.array[2].str;
+
+        res.type = RespType::STRING;
+        res.str = "OK";
+        response = serialise(res);
       }
       else if (command == "GET")
       {
@@ -66,7 +56,7 @@ void handle_commands(int clientaddr)
         if (it != storage.end())
         {
           res.type = RespType::BULK;
-          res.str = it->second; 
+          res.str = it->second;
         }
         else
         {
