@@ -10,7 +10,8 @@ enum class RespType
     INTEGER,
     BULK,
     ARRAY,
-    NIL
+    NIL,
+    BULK_NULL
 };
 struct RespValue
 {

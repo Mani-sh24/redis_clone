@@ -9,7 +9,11 @@
 #include <netdb.h>
 #include <thread>
 #include "helpers.h"
-void sendpong(int clientaddr)
+#include <unordered_map>
+
+unordered_map<string, string> storage;
+
+void handle_commands(int clientaddr)
 {
   string response;
   char buffer[1024];
@@ -35,6 +39,39 @@ void sendpong(int clientaddr)
       else if (command == "ECHO" && value.array.size() > 0)
       {
         response = serialise(value.array[1]);
+      }
+      else if (command == "SET")
+      {
+        RespValue res;
+        auto [it, inserted] = storage.emplace(
+            value.array[1].str,
+            value.array[2].str);
+        if (inserted)
+        {
+          res.type = RespType::STRING;
+          res.str = "OK";
+          response = serialise(res);
+        }
+        else
+        {
+          res.type = RespType::ERROR;
+          res.str = "ERR couldnt save the item";
+        }
+      }
+      else if (command == "GET")
+      {
+        RespValue res;
+        auto it = storage.find(value.array[1].str);
+        if (it != storage.end())
+        {
+          res.type = RespType::BULK;
+          res.str = it->second;
+          response = serialise(res);
+        }
+        {
+          res.type = RespType::BULK_NULL;
+          response = serialise(res);
+        }
       }
 
       if (!response.empty())
@@ -100,7 +137,7 @@ int main(int argc, char **argv)
     if (client_fd < 0)
       break;
 
-    std::thread(sendpong, client_fd).detach();
+    std::thread(handle_commands, client_fd).detach();
   }
 
   close(server_fd);
