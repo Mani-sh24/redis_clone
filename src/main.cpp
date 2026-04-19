@@ -62,16 +62,18 @@ void handle_commands(int clientaddr)
       {
         RespValue res;
         auto it = storage.find(value.array[1].str);
+
         if (it != storage.end())
         {
           res.type = RespType::BULK;
-          res.str = it->second;
-          response = serialise(res);
+          res.str = it->second; 
         }
+        else
         {
           res.type = RespType::BULK_NULL;
-          response = serialise(res);
         }
+
+        response = serialise(res);
       }
 
       if (!response.empty())
@@ -81,7 +83,6 @@ void handle_commands(int clientaddr)
       std::memset(buffer, 0, sizeof(buffer));
     }
     response.clear();
-
   }
 }
 int main(int argc, char **argv)
