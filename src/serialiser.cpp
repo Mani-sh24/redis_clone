@@ -10,6 +10,6 @@ string serialise(const RespValue& obj){
     case RespType::STRING:
         return "+"+obj.str +"\r\n";
     default:
-        break;
+        return "error";
     }
 }
