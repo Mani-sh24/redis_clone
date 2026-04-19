@@ -39,7 +39,7 @@ void handle_commands(int clientaddr)
       {
         response = serialise(value.array[1]);
       }
-      else if (command == "SET")
+      else if (command == "SET" && value.array.size() <=3)
       {
         RespValue res;
         storage[value.array[1].str] = value.array[2].str;
@@ -48,7 +48,7 @@ void handle_commands(int clientaddr)
         res.str = "OK";
         response = serialise(res);
       }
-      else if (command == "GET")
+      else if (command == "GET" && value.array.size() <=2)
       {
         RespValue res;
         auto it = storage.find(value.array[1].str);
