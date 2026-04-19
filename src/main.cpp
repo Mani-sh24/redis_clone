@@ -23,7 +23,7 @@ void handle_commands(int clientaddr)
     if (bytes_recieved <= 0)
       break;
 
-    auto [value, consumed] = prcoess_parser(buffer, bytes_recieved);
+    auto [value, consumed] = prcoess_parser(buffer, 0);
     if (value.type == RespType::ARRAY && value.array.size() > 0)
     {
       string command = value.array[0].str;
