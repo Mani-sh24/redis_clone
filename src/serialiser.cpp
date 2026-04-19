@@ -9,7 +9,9 @@ string serialise(const RespValue& obj){
     {
     case RespType::STRING:
         return "+"+obj.str +"\r\n";
-    default:
+    case RespType::BULK:
+        return "$"+obj.str.length()+'\r\n'+obj.str+"\r\n";
+        default:
         return "error";
     }
 }
