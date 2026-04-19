@@ -79,8 +79,9 @@ void handle_commands(int clientaddr)
         send(clientaddr, response.c_str(), response.length(), 0);
 
       std::memset(buffer, 0, sizeof(buffer));
-      response.clear();
     }
+    response.clear();
+
   }
 }
 int main(int argc, char **argv)
