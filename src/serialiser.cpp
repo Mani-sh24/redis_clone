@@ -14,7 +14,10 @@ string serialise(const RespValue& obj){
     case RespType::ERROR:
         return "-"+obj.str+ "\r\n";
     case RespType::NIL:
-            return "$-1\r\n";
+        return "$-1\r\n";
+    case RespType::INTEGER:
+        return ":" + to_string(obj.integer) + "\r\n";
+    // case RespType::ARRAY
     default:
         return "error";
     }
