@@ -32,7 +32,7 @@ struct RespValue
     bool is_null = false;
 };
 struct ParseResults{
-    bool has_expiry;
+    bool has_expiry = false;  
     std::chrono::steady_clock::duration ttl{};
 };
 string to_upper(string s);
