@@ -19,7 +19,7 @@ std::string handle_value(const RespValue &value)
   {
     response = serialise(value.array[1]);
   }
-  else if (command == "SET" && value.array.size())
+  else if (command == "SET" && value.array.size()>=3)
   {
     Entry entry;
     entry.value = value.array[2].str;
