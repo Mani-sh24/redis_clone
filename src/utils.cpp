@@ -34,14 +34,14 @@ ParseResults parse_set_options(const vector<RespValue>&args)
             {
                 result.ttl = chrono::seconds(ttl);
             }
-            else
+            else if(token == "PX")
             { // PX
                 result.ttl = chrono::milliseconds(ttl);
             }
             result.has_expiry = true;
             i+=2;
         }else{
-            throw runtime_error("Unknown option" + token);
+            throw runtime_error("Unknown option " + token);
         }
     }
     return result;
