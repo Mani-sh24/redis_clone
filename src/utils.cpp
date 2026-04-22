@@ -13,7 +13,7 @@ ParseResults parse_set_options(const vector<RespValue>&args)
     while (i < args.size())
     {
         string token = to_upper(args[i].str);
-        if (token == "EX")
+        if (token == "EX" || token=="PX")
         {
             if (i + 1 >= args.size())
             {
