@@ -19,7 +19,7 @@ std::string handle_value(const RespValue &value)
   {
     response = serialise(value.array[1]);
   }
-  else if (command == "SET" && value.array.size()>=3)
+  else if (command == "SET" && value.array.size() >=3)
   {
     Entry entry;
     entry.value = value.array[2].str;
@@ -46,7 +46,7 @@ std::string handle_value(const RespValue &value)
 
     RespValue res;
 
-    if (it == storage.end())
+    if (it != storage.end())
     {
       res.type = RespType::BULK_NULL;
     }
@@ -54,7 +54,7 @@ std::string handle_value(const RespValue &value)
     {
       auto now = std::chrono::steady_clock::now();
 
-      if (it->second.expires_at <= now)
+      if (now >= it->second.expires_at)
       {
         // expired → delete + return null
         storage.erase(it);
