@@ -9,72 +9,37 @@
 #include <netdb.h>
 #include <thread>
 #include "helpers.h"
-#include <unordered_map>
 
-unordered_map<string, string> storage;
-
-void handle_commands(int clientaddr)
+void handle_commands(int clientfd)
 {
-  string response;
+  std::string accumulator;
   char buffer[1024];
+
   while (true)
   {
-   ssize_t bytes_recieved = recv(clientaddr, buffer, sizeof(buffer), 0);
-    if (bytes_recieved <= 0)
+    ssize_t bytes = recv(clientfd, buffer, sizeof(buffer), 0);
+    if (bytes <= 0)
       break;
-
-    auto [value, consumed] = prcoess_parser(buffer, 0);
-    if (value.type == RespType::ARRAY && value.array.size() > 0)
+    accumulator.append(buffer, bytes);
+    // Parse all complete frames from the accumulator
+    int offset = 0;
+    while (offset < (int)accumulator.size())
     {
-      string command = value.array[0].str;
-      for (auto &c : command)
-      {
-        c = toupper(c);
-      }
-      if (command == "PING")
-      {
-        response = "+PONG\r\n";
-      }
-      else if (command == "ECHO" && value.array.size() > 0)
-      {
-        response = serialise(value.array[1]);
-      }
-      else if (command == "SET" && value.array.size() <=3)
-      {
-        RespValue res;
-        storage[value.array[1].str] = value.array[2].str;
-
-        res.type = RespType::STRING;
-        res.str = "OK";
-        response = serialise(res);
-      }
-      else if (command == "GET" && value.array.size() <=2)
-      {
-        RespValue res;
-        auto it = storage.find(value.array[1].str);
-
-        if (it != storage.end())
-        {
-          res.type = RespType::BULK;
-          res.str = it->second;
-        }
-        else
-        {
-          res.type = RespType::BULK_NULL;
-        }
-
-        response = serialise(res);
-      }
-
+      auto [value, consumed] = prcoess_parser(accumulator, offset);
+      if (consumed < 0)
+        break; // incomplete frame — wait for more data
+      offset += consumed;
+      std::string response = handle_value(value);
       if (!response.empty())
-
-        send(clientaddr, response.c_str(), response.length(), 0);
-
-      std::memset(buffer, 0, sizeof(buffer));
+        send(clientfd, response.c_str(), response.length(), 0);
     }
-    response.clear();
+    // Remove all fully processed bytes from the front
+    accumulator.erase(0, offset);
   }
+
+  close(clientfd);
 }
+
 int main(int argc, char **argv)
 {
 
@@ -102,7 +67,7 @@ int main(int argc, char **argv)
   server_addr.sin_addr.s_addr = INADDR_ANY;
   server_addr.sin_port = htons(6379);
 
-  if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) != 0)
+  if (::bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) != 0)
   {
     std::cerr << "Failed to bind to port 6379\n";
     return 1;

@@ -3,12 +3,6 @@
 #include <string>
 #include <iostream>
 using namespace std;
-
-#include "helpers.h"
-#include <vector>
-#include <string>
-#include <iostream>
-using namespace std;
 pair<RespValue, int> parse_bulk_strings(string text, int pos)
 {
     // $5\r\nhello\r\n
@@ -172,7 +166,9 @@ void print_value(const RespValue &val, int depth)
     case RespType::NIL:
         cout << indent << "NIL\n";
         break;
-
+    case RespType::BULK_NULL:
+        cout << indent << "NIL\n";
+        break;
     case RespType::ARRAY:
         cout << indent << "ARRAY (" << val.array.size() << " elements):\n";
         for (const auto &elem : val.array)
