@@ -54,7 +54,7 @@ std::string handle_value(const RespValue &value)
     {
       auto now = std::chrono::steady_clock::now();
 
-      if (now >= it->second.expires_at)
+      if (it->second.expires_at <= now)
       {
         // expired → delete + return null
         storage.erase(it);
