@@ -33,7 +33,7 @@ struct RespValue
 };
 struct ParseResults{
     bool has_expiry = false;  
-    std::chrono::steady_clock::duration ttl{};
+    std::chrono::steady_clock::duration ttl{0};
 };
 string to_upper(string s);
 void print_value(const RespValue &val, int depth = 0);
