@@ -6,14 +6,14 @@ string to_upper(string s)
     return s;
 }
 
-ParseResults parse_set_options(const vector<RespValue>&args)
+ParseResults parse_set_options(const vector<RespValue> &args)
 {
     ParseResults result;
     int i = 3;
     while (i < args.size())
     {
         string token = to_upper(args[i].str);
-        if (token == "EX" || token=="PX")
+        if (token == "EX" || token == "PX")
         {
             if (i + 1 >= args.size())
             {
@@ -32,15 +32,17 @@ ParseResults parse_set_options(const vector<RespValue>&args)
             }
             if (token == "EX")
             {
-                result.ttl = chrono::seconds(ttl);
+                result.ttl = chrono::milliseconds(ttl * 1000);
             }
-            else if(token == "PX")
+            else if (token == "PX")
             { // PX
                 result.ttl = chrono::milliseconds(ttl);
             }
             result.has_expiry = true;
-            i+=2;
-        }else{
+            i += 2;
+        }
+        else
+        {
             throw runtime_error("Unknown option " + token);
         }
     }
