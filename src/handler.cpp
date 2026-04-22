@@ -1,4 +1,5 @@
 #include "helpers.h"
+#include<iostream> 
 unordered_map<string, Entry> storage;
 std::string handle_value(const RespValue &value)
 {
@@ -37,6 +38,9 @@ std::string handle_value(const RespValue &value)
 
     RespValue res;
     res.type = RespType::STRING;
+    std::cout << "TTL(ms): "
+     << chrono::duration_cast<chrono::milliseconds>(parsed.ttl).count()
+     << endl;
     res.str = "OK";
     response = serialise(res);
   }
