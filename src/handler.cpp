@@ -31,7 +31,7 @@ std::string handle_value(const RespValue &value)
     }
     else
     {
-      entry.expires_at = now + chrono::steady_clock::duration::max();
+      entry.expires_at = now + std::chrono::steady_clock::duration::max();
     }
     storage[value.array[1].str] = entry;
 
@@ -46,7 +46,7 @@ std::string handle_value(const RespValue &value)
 
     RespValue res;
 
-    if (it != storage.end())
+    if (it == storage.end())
     {
       res.type = RespType::BULK_NULL;
     }
