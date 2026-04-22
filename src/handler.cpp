@@ -1,5 +1,5 @@
 #include "helpers.h"
-#include<iostream> 
+#include <iostream>
 unordered_map<string, Entry> storage;
 std::string handle_value(const RespValue &value)
 {
@@ -20,7 +20,7 @@ std::string handle_value(const RespValue &value)
   {
     response = serialise(value.array[1]);
   }
-  else if (command == "SET" && value.array.size() >=3)
+  else if (command == "SET" && value.array.size() >= 3)
   {
     Entry entry;
     entry.value = value.array[2].str;
@@ -35,22 +35,20 @@ std::string handle_value(const RespValue &value)
     //   entry.expires_at = now + std::chrono::steady_clock::duration::max();
     // }
     if (parsed.has_expiry)
-{
-    cout << "Has expiry\n";
-    entry.expires_at = now + parsed.ttl;
-}
-else
-{
-    cout << "No expiry\n";
-    entry.expires_at = chrono::steady_clock::time_point::max();
-}
+    {
+      entry.expires_at = now + parsed.ttl;
+    }
+    else
+    {
+      entry.expires_at = chrono::steady_clock::time_point::max();
+    }
     storage[value.array[1].str] = entry;
 
     RespValue res;
     res.type = RespType::STRING;
-    std::cout << "TTL(ms): "
-     << chrono::duration_cast<chrono::milliseconds>(parsed.ttl).count()
-     << endl;
+    // std::cout << "TTL(ms): "
+    //           << chrono::duration_cast<chrono::milliseconds>(parsed.ttl).count()
+    //           << endl;
     res.str = "OK";
     response = serialise(res);
   }
