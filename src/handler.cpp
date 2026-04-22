@@ -26,14 +26,24 @@ std::string handle_value(const RespValue &value)
     entry.value = value.array[2].str;
     auto now = chrono::steady_clock::now();
     auto parsed = parse_set_options(value.array);
+    // if (parsed.has_expiry)
+    // {
+    //   entry.expires_at = now + parsed.ttl;
+    // }
+    // else
+    // {
+    //   entry.expires_at = now + std::chrono::steady_clock::duration::max();
+    // }
     if (parsed.has_expiry)
-    {
-      entry.expires_at = now + parsed.ttl;
-    }
-    else
-    {
-      entry.expires_at = now + std::chrono::steady_clock::duration::max();
-    }
+{
+    cout << "Has expiry\n";
+    entry.expires_at = now + parsed.ttl;
+}
+else
+{
+    cout << "No expiry\n";
+    entry.expires_at = chrono::steady_clock::time_point::max();
+}
     storage[value.array[1].str] = entry;
 
     RespValue res;
