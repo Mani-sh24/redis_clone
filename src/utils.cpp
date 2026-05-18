@@ -8,7 +8,7 @@ string to_upper(string s)
     return s;
 }
 
-bool setKeys(const RespValue &value , Cache<string , string> &storage , string &response)
+bool setKeys(const RespValue &value, Cache<string, string> &storage, string &response)
 {
     RespValue res;
 
@@ -32,11 +32,10 @@ bool setKeys(const RespValue &value , Cache<string , string> &storage , string &
     try
     {
         auto parsed = parse_set_options(value.array);
-
         if (parsed.has_expiry)
         {
-            int ttl_seconds = chrono::duration_cast<chrono::seconds>(parsed.ttl).count();
-            storage.put(value.array[1].str, value.array[2].str, ttl_seconds);
+            long long ttl_ms = chrono::duration_cast<chrono::milliseconds>(parsed.ttl).count();
+            storage.put(value.array[1].str, value.array[2].str, ttl_ms);
         }
         else
         {
@@ -58,7 +57,7 @@ bool setKeys(const RespValue &value , Cache<string , string> &storage , string &
     return true;
 }
 
-bool getKeys(const RespValue &value , Cache<string , string> &storage , string &response)
+bool getKeys(const RespValue &value, Cache<string, string> &storage, string &response)
 {
     RespValue res;
 

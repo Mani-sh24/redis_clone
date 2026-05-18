@@ -49,4 +49,5 @@ ParseResults parse_set_options(const vector<RespValue>&args);
 bool setKeys(const RespValue &value , Cache<string , string> &storage , string &response);
 bool getKeys(const RespValue &value , Cache<string , string> &storage , string &response);
 
+void record(std::string);
 #endif

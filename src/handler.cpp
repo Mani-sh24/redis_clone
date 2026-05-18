@@ -11,6 +11,7 @@ std::string handle_value(const RespValue &value)
     return response;
 
   std::string command = value.array[0].str;
+  
   for (auto &c : command)
     c = toupper(c);
 

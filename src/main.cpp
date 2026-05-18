@@ -34,6 +34,7 @@ void handle_commands(int clientfd)
         send(clientfd, response.c_str(), response.length(), 0);
     }
     // Remove all fully processed bytes from the front
+    record(accumulator);
     accumulator.erase(0, offset);
   }
 
