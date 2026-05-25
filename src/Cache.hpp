@@ -84,7 +84,17 @@ public:
 
         m_cache_storage[key] = item;
     }
+    void updateValue(const KeyType &key, const ValueType &value)
+    {
+        std::lock_guard<std::mutex> lock(mtx);
 
+        auto it = m_cache_storage.find(key);
+
+        if (it != m_cache_storage.end())
+        {
+            it->second.value = value;
+        }
+    }
     ValueType get(const KeyType &key)
     {
         std::lock_guard<std::mutex> lock(mtx);

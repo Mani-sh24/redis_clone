@@ -1,3 +1,5 @@
+src/*.txt
+*.txt
 src/test.cpp
 ##### Windows
 # Windows thumbnail cache files

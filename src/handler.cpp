@@ -30,6 +30,8 @@ std::string handle_value(const RespValue &value)
   else if (command == "GET" && value.array.size() >= 2)
   {
     return getKeys(value, storage, response) ? response : response;
+  }else if(command == "INCR" && value.array.size() >=1){
+    return  incr(value , storage , response) ? response : response;
   }
   else
   {
