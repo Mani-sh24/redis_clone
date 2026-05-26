@@ -16,7 +16,6 @@ std::optional<int> parse_int(string_view str)
         return val;
     return std::nullopt;
 }
-
 bool setKeys(const RespValue &value, Cache<string, string> &storage, string &response)
 {
     RespValue res;
@@ -110,13 +109,6 @@ bool incr(const RespValue &value, Cache<string, string> &storage, string &respon
         response = serialise(res);
         return false;
     }
-    if (value.type != RespType::ARRAY || value.array.size() < 2)
-    {
-        res.type = RespType::ERROR;
-        res.str = "Error invalid arguments!";
-        response = serialise(res);
-        return false;
-    }
 
     if (value.array[1].type != RespType::BULK)
     {
@@ -140,14 +132,108 @@ bool incr(const RespValue &value, Cache<string, string> &storage, string &respon
         int num = *parsed + 1;
 
         storage.updateValue(value.array[1].str, std::to_string(num));
-        res.type = RespType::STRING;
-        res.str = "OK";
+        res.type = RespType::INTEGER;
+        res.integer = num;
         response = serialise(res);
         return true;
     }
         storage.put(value.array[1].str , to_string(1));
-        res.type = RespType::STRING;
-        res.str = "OK";
+        res.type = RespType::INTEGER;
+        res.integer = 1;
+        response = serialise(res);
+        return true;
+}
+
+bool decr(const RespValue &value, Cache<string, string> &storage, string &response)
+{
+    RespValue res;
+    if (value.type != RespType::ARRAY || value.array.size() < 2)
+    {
+        res.type = RespType::ERROR;
+        res.str = "Error invalid arguments!";
+        response = serialise(res);
+        return false;
+    }
+    
+    if (value.array[1].type != RespType::BULK)
+    {
+        res.type = RespType::ERROR;
+        res.str = "Error invalid arguments!";
+        response = serialise(res);
+        return false;
+    }
+    if(!storage.exists(value.array[1].str)){
+        res.type = RespType::ERROR;
+        res.str = "Key doesnt exist!";
+        response = serialise(res);
+        return false;        
+    }
+    auto parsed = parse_int(storage.get(value.array[1].str));
+
+    if (!parsed)
+    {
+            res.type = RespType::ERROR;
+            res.str = "ERR value is not an integer";
+            response = serialise(res);
+            return false;
+    }
+    int num = *parsed -1;
+    storage.updateValue(value.array[1].str , to_string(num));
+    res.type = RespType::INTEGER;
+    res.integer = num;
+    response = serialise(res);
+    return true;
+}
+bool incr_by(const RespValue &value, Cache<string, string> &storage, string &response)
+{
+    RespValue res;
+
+    if (value.type != RespType::ARRAY || value.array.size() < 3)
+    {
+        res.type = RespType::ERROR;
+        res.str = "Error invalid arguments!";
+        response = serialise(res);
+        return false;
+    }
+
+    if (value.array[1].type != RespType::BULK)
+    {
+        res.type = RespType::ERROR;
+        res.str = "Error invalid arguments!";
+        response = serialise(res);
+        return false;
+    }
+    auto num_by = parse_int(value.array[2].str);
+     if (!num_by)
+        {
+            res.type = RespType::ERROR;
+            res.str = "ERR value is not an integer";
+            response = serialise(res);
+            return false;
+        }
+    if (storage.exists(value.array[1].str))
+    {
+        auto parsed = parse_int(storage.get(value.array[1].str));
+        
+
+        if (!parsed)
+        {
+            res.type = RespType::ERROR;
+            res.str = "ERR value is not an integer";
+            response = serialise(res);
+            return false;
+        }
+        int num = *parsed + *num_by;
+
+        storage.updateValue(value.array[1].str, std::to_string(num));
+        res.type = RespType::INTEGER;
+        res.integer = num;
+        response = serialise(res);
+        return true;
+    }
+        storage.put(value.array[1].str , to_string(*num_by));
+        res.type = RespType::INTEGER;
+        res.integer = *num_by;
         response = serialise(res);
         return true;
 }

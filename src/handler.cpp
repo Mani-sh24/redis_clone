@@ -32,6 +32,11 @@ std::string handle_value(const RespValue &value)
     return getKeys(value, storage, response) ? response : response;
   }else if(command == "INCR" && value.array.size() >=1){
     return  incr(value , storage , response) ? response : response;
+  }else if(command == "DECR" && value.array.size() >=1){
+    return  decr(value , storage , response) ? response : response;
+  }
+  else if(command == "INCRBY" && value.array.size() >=1){
+    return  incr_by(value , storage , response) ? response : response;
   }
   else
   {
