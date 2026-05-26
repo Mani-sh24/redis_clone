@@ -1,16 +1,22 @@
-#include "helpers.h"
-#include "Cache.hpp"
+#include "resp/handler.hpp"
+#include "resp/serialiser.hpp"
+#include "commands/db_commands.hpp"
+#include "cache/Cache.hpp"
+#include <cctype>
+#include <string>
 
-Cache<string ,string> storage(true);
+using namespace std;
 
-std::string handle_value(const RespValue &value)
+Cache<string, string> storage(true);
+
+string handle_value(const RespValue &value)
 {
-  std::string response;
+  string response;
 
   if (value.type != RespType::ARRAY || value.array.empty())
     return response;
 
-  std::string command = value.array[0].str;
+  string command = value.array[0].str;
   
   for (auto &c : command)
     c = toupper(c);
@@ -30,13 +36,18 @@ std::string handle_value(const RespValue &value)
   else if (command == "GET" && value.array.size() >= 2)
   {
     return getKeys(value, storage, response) ? response : response;
-  }else if(command == "INCR" && value.array.size() >=1){
-    return  incr(value , storage , response) ? response : response;
-  }else if(command == "DECR" && value.array.size() >=1){
-    return  decr(value , storage , response) ? response : response;
   }
-  else if(command == "INCRBY" && value.array.size() >=1){
-    return  incr_by(value , storage , response) ? response : response;
+  else if (command == "INCR" && value.array.size() >= 1)
+  {
+    return incr(value, storage, response) ? response : response;
+  }
+  else if (command == "DECR" && value.array.size() >= 1)
+  {
+    return decr(value, storage, response) ? response : response;
+  }
+  else if (command == "INCRBY" && value.array.size() >= 1)
+  {
+    return incr_by(value, storage, response) ? response : response;
   }
   else
   {

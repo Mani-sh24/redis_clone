@@ -8,7 +8,8 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <thread>
-#include "helpers.h"
+#include "resp/deserialiser.hpp"
+#include "resp/handler.hpp"
 
 void handle_commands(int clientfd)
 {
@@ -25,7 +26,7 @@ void handle_commands(int clientfd)
     int offset = 0;
     while (offset < (int)accumulator.size())
     {
-      auto [value, consumed] = prcoess_parser(accumulator, offset);
+      auto [value, consumed] = process_parser(accumulator, offset);
       if (consumed < 0)
         break; // incomplete frame — wait for more data
       offset += consumed;

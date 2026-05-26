@@ -1,21 +1,13 @@
-#include "helpers.h"
-#include "Cache.hpp"
-#include <charconv>
-string to_upper(string s)
-{
-    for (auto &c : s)
-        c = toupper(c);
-    return s;
-}
+#include "commands/db_commands.hpp"
+#include "utils/string_helpers.hpp"
+#include "resp/serialiser.hpp"
+#include <chrono>
+#include <exception>
+#include <stdexcept>
+#include <string>
 
-std::optional<int> parse_int(string_view str)
-{
-    int val;
-    auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), val);
-    if (ec == std::errc() && ptr == str.data() + str.size())
-        return val;
-    return std::nullopt;
-}
+using namespace std;
+
 bool setKeys(const RespValue &value, Cache<string, string> &storage, string &response)
 {
     RespValue res;
@@ -98,6 +90,7 @@ bool getKeys(const RespValue &value, Cache<string, string> &storage, string &res
     response = serialise(res);
     return true;
 }
+
 bool incr(const RespValue &value, Cache<string, string> &storage, string &response)
 {
     RespValue res;
@@ -137,11 +130,11 @@ bool incr(const RespValue &value, Cache<string, string> &storage, string &respon
         response = serialise(res);
         return true;
     }
-        storage.put(value.array[1].str , to_string(1));
-        res.type = RespType::INTEGER;
-        res.integer = 1;
-        response = serialise(res);
-        return true;
+    storage.put(value.array[1].str, to_string(1));
+    res.type = RespType::INTEGER;
+    res.integer = 1;
+    response = serialise(res);
+    return true;
 }
 
 bool decr(const RespValue &value, Cache<string, string> &storage, string &response)
@@ -172,18 +165,19 @@ bool decr(const RespValue &value, Cache<string, string> &storage, string &respon
 
     if (!parsed)
     {
-            res.type = RespType::ERROR;
-            res.str = "ERR value is not an integer";
-            response = serialise(res);
-            return false;
+        res.type = RespType::ERROR;
+        res.str = "ERR value is not an integer";
+        response = serialise(res);
+        return false;
     }
-    int num = *parsed -1;
-    storage.updateValue(value.array[1].str , to_string(num));
+    int num = *parsed - 1;
+    storage.updateValue(value.array[1].str, to_string(num));
     res.type = RespType::INTEGER;
     res.integer = num;
     response = serialise(res);
     return true;
 }
+
 bool incr_by(const RespValue &value, Cache<string, string> &storage, string &response)
 {
     RespValue res;
@@ -204,13 +198,13 @@ bool incr_by(const RespValue &value, Cache<string, string> &storage, string &res
         return false;
     }
     auto num_by = parse_int(value.array[2].str);
-     if (!num_by)
-        {
-            res.type = RespType::ERROR;
-            res.str = "ERR value is not an integer";
-            response = serialise(res);
-            return false;
-        }
+    if (!num_by)
+    {
+        res.type = RespType::ERROR;
+        res.str = "ERR value is not an integer";
+        response = serialise(res);
+        return false;
+    }
     if (storage.exists(value.array[1].str))
     {
         auto parsed = parse_int(storage.get(value.array[1].str));
@@ -231,12 +225,13 @@ bool incr_by(const RespValue &value, Cache<string, string> &storage, string &res
         response = serialise(res);
         return true;
     }
-        storage.put(value.array[1].str , to_string(*num_by));
-        res.type = RespType::INTEGER;
-        res.integer = *num_by;
-        response = serialise(res);
-        return true;
+    storage.put(value.array[1].str, to_string(*num_by));
+    res.type = RespType::INTEGER;
+    res.integer = *num_by;
+    response = serialise(res);
+    return true;
 }
+
 ParseResults parse_set_options(const vector<RespValue> &args)
 {
     ParseResults result;

@@ -1,10 +1,11 @@
-#include<string>
-#include<fstream>
+#include "utils/aof.hpp"
+#include <fstream>
+
 void record(std::string command) {
     std::ofstream file("logs.txt", std::ios::app);
     if (file.is_open()) {
         size_t pos = 0;
-            while ((pos = command.find('\r', pos)) != std::string::npos) {
+        while ((pos = command.find('\r', pos)) != std::string::npos) {
             command.replace(pos, 1, "\\r");
             pos += 2; // Move past the newly inserted "\r"
         }

@@ -1,8 +1,10 @@
-#include "helpers.h"
+#include "resp/deserialiser.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
+
 using namespace std;
+
 pair<RespValue, int> parse_bulk_strings(string text, int pos)
 {
     // $5\r\nhello\r\n
@@ -30,6 +32,7 @@ pair<RespValue, int> parse_bulk_strings(string text, int pos)
     // cout << start << endl;
     return {result, end - original};
 }
+
 pair<RespValue, int> parse_string(string text, int pos)
 {
     int original = pos - 1;
@@ -49,6 +52,7 @@ pair<RespValue, int> parse_string(string text, int pos)
     int end = start + len + 2;
     return {result, end - original};
 }
+
 pair<RespValue, int> parse_simple_errors(string text, int pos)
 {
     int original = pos - 1;
@@ -67,6 +71,7 @@ pair<RespValue, int> parse_simple_errors(string text, int pos)
     int end = start + len + 2;
     return {result, end - original};
 }
+
 pair<RespValue, int> parse_integers(string text, int pos)
 {
     int original = pos - 1;
@@ -86,6 +91,7 @@ pair<RespValue, int> parse_integers(string text, int pos)
     return {result, end - original};
     // cout << start;
 }
+
 pair<RespValue, int> parse_array(string text, int pos)
 {
     int original = pos - 1;
@@ -110,7 +116,7 @@ pair<RespValue, int> parse_array(string text, int pos)
 
     for (int i = 0; i < len; i++)
     {
-        auto [value, consumed] = prcoess_parser(text, cursor);
+        auto [value, consumed] = process_parser(text, cursor);
 
         if (consumed < 0)
             return {{}, -1};
@@ -121,7 +127,8 @@ pair<RespValue, int> parse_array(string text, int pos)
 
     return {result, cursor - original};
 }
-pair<RespValue, int> prcoess_parser(string buffer, int offset)
+
+pair<RespValue, int> process_parser(string buffer, int offset)
 {
     if (offset >= buffer.size())
         return {{}, -1};
@@ -141,6 +148,7 @@ pair<RespValue, int> prcoess_parser(string buffer, int offset)
         return {{}, -1};
     }
 }
+
 void print_value(const RespValue &val, int depth)
 {
     string indent(depth * 2, ' ');
