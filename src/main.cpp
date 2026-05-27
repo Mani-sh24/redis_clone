@@ -10,33 +10,35 @@
 #include <thread>
 #include "resp/deserialiser.hpp"
 #include "resp/handler.hpp"
+#include "utils/aof.hpp"
 
 void handle_commands(int clientfd)
 {
-  std::string accumulator;
+  ClientState client;
+  client.fd = clientfd;
   char buffer[1024];
 
   while (true)
   {
-    ssize_t bytes = recv(clientfd, buffer, sizeof(buffer), 0);
+    ssize_t bytes = recv(client.fd, buffer, sizeof(buffer), 0);
     if (bytes <= 0)
       break;
-    accumulator.append(buffer, bytes);
-    // Parse all complete frames from the accumulator
+    client.accumulator.append(buffer, bytes);
+    // Parse all complete frames from the client.accumulator
     int offset = 0;
-    while (offset < (int)accumulator.size())
+    while (offset < (int)client.accumulator.size())
     {
-      auto [value, consumed] = process_parser(accumulator, offset);
+      auto [value, consumed] = process_parser(client.accumulator, offset);
       if (consumed < 0)
         break; // incomplete frame — wait for more data
       offset += consumed;
-      std::string response = handle_value(value);
+      std::string response = handle_value(value , client);
       if (!response.empty())
         send(clientfd, response.c_str(), response.length(), 0);
     }
     // Remove all fully processed bytes from the front
-    // record(accumulator);
-    accumulator.erase(0, offset);
+    record(client.accumulator);
+    client.accumulator.erase(0, offset);
   }
 
   close(clientfd);

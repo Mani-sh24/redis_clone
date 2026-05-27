@@ -4,6 +4,7 @@
 #include "resp/types.hpp"
 #include <string>
 
-std::string handle_value(const RespValue &value);
+std::string handle_value(const RespValue &value, ClientState &client);
+std::string execute_cmd(const RespValue &value);
 
 #endif // RESP_HANDLER_HPP

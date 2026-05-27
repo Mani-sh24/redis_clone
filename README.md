@@ -18,6 +18,19 @@ A high-performance, multithreaded Redis-like in-memory key-value data store impl
   - `DECR` — Decrements the integer value of a key by 1.
   - `INCRBY` — Increments the integer value of a key by a specified integer value.
 
+### TTL (Time-To-Live) Specification
+
+The database supports key expiration using the `SET` command:
+- **Options**:
+  - `EX` — Set the specified expire time, in **seconds**.
+  - `PX` — Set the specified expire time, in **milliseconds**.
+- **Rules**:
+  - Expiration values must be non-negative integers.
+  - Specifying multiple expiration arguments (e.g., both `EX` and `PX` in the same command) is invalid and will return an error response.
+- **Mechanisms**:
+  - **Lazy Deletion**: Expired keys are deleted from the database storage immediately when a client tries to access them.
+  - **Active Deletion**: A background thread runs periodically to clean up expired keys using a priority queue.
+
 ---
 
 ## Directory Structure
