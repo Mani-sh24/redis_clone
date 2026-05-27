@@ -115,7 +115,9 @@ string execute_cmd(const RespValue &value){
   {
     RespValue err;
     err.type = RespType::ERROR;
-    err.str = "ERR unknown command or wrong number of arguments";
+    err.str = "ERR unknown command ";
+    err.str += command;
+    err.str += " or wrong number of arguments";
     response = serialise(err);
   }
 
