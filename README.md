@@ -17,6 +17,10 @@ A high-performance, multithreaded Redis-like in-memory key-value data store impl
   - `INCR` — Increments the integer value of a key by 1.
   - `DECR` — Decrements the integer value of a key by 1.
   - `INCRBY` — Increments the integer value of a key by a specified integer value.
+  - `MULTI` — Starts a transaction block where subsequent commands are queued.
+  - `EXEC` — Executes all queued commands in the transaction block.
+  - `DISCARD` — Discards all queued commands in the transaction block.
+- **Append-Only File (AOF) Logging**: Saves client request buffers to `logs.txt` for auditing and history tracking.
 
 ### TTL (Time-To-Live) Specification
 
@@ -31,6 +35,13 @@ The database supports key expiration using the `SET` command:
   - **Lazy Deletion**: Expired keys are deleted from the database storage immediately when a client tries to access them.
   - **Active Deletion**: A background thread runs periodically to clean up expired keys using a priority queue.
 
+### Transaction Specification
+
+The database supports basic transaction operations via queuing:
+- **MULTI**: Switches the client connection to a transaction state. All subsequent commands (except `EXEC`, `DISCARD`, and nested `MULTI` calls) are queued into a transaction buffer and respond with `+QUEUED`.
+- **EXEC**: Executes all queued commands sequentially in the order they were received, returns an array of responses, and restores the client connection back to normal state.
+- **DISCARD**: Discards all queued commands in the transaction buffer and restores the connection back to normal state.
+
 ---
 
 ## Directory Structure
@@ -39,6 +50,7 @@ The project follows a clean header-source separation structure:
 
 ```
 ├── CMakeLists.txt          # CMake Build Configuration
+├── logs.txt                # Append-Only command log file (auto-generated)
 ├── include/                # Header Files
 │   ├── cache/
 │   │   ├── Cache.hpp       # Thread-safe Cache class template declaration
@@ -127,6 +139,19 @@ OK
 (integer) 11
 127.0.0.1:6379> INCRBY counter 5
 (integer) 16
+```
+
+### Transactions with `redis-cli`
+```bash
+127.0.0.1:6379> MULTI
+OK
+127.0.0.1:6379> SET user_age 25
+QUEUED
+127.0.0.1:6379> INCR user_age
+QUEUED
+127.0.0.1:6379> EXEC
+1) OK
+2) (integer) 26
 ```
 
 ### Using netcat (`nc`)
