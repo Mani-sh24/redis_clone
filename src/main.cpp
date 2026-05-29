@@ -11,7 +11,7 @@
 #include "resp/deserialiser.hpp"
 #include "resp/handler.hpp"
 #include "utils/aof.hpp"
-
+#include "startup/startup.hpp"
 void handle_commands(int clientfd)
 {
   ClientState client;
@@ -65,11 +65,11 @@ int main(int argc, char **argv)
     std::cerr << "setsockopt failed\n";
     return 1;
   }
-
+  __uint16_t port = 6379;
   struct sockaddr_in server_addr;
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = INADDR_ANY;
-  server_addr.sin_port = htons(6379);
+  server_addr.sin_port = htons(port);
 
   if (::bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) != 0)
   {
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
     std::cerr << "listen failed\n";
     return 1;
   }
-
+  startup_info(port);
   struct sockaddr_in client_addr;
   int client_addr_len = sizeof(client_addr);
   std::cout << "Waiting for a client to connect...\n";
