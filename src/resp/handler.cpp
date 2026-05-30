@@ -17,7 +17,7 @@ string handle_value(const RespValue &value, ClientState &client)
   
   for (auto &c : command)
     c = toupper(c);
-
+  
   if (command == "MULTI")
   {
     if (client.in_multi)
@@ -110,6 +110,9 @@ string execute_cmd(const RespValue &value){
   else if (command == "INCRBY" && value.array.size() >= 1)
   {
     return incr_by(value, storage, response) ? response : response;
+  }
+  else if(command == "WATCH" && value.array.size() >=1){
+    return ;
   }
   else
   {

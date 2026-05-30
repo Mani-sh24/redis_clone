@@ -44,7 +44,7 @@ void Cache<KeyType, ValueType>::put(const KeyType &key, const ValueType &value, 
 
     CacheItem<ValueType> item;
     item.value = value;
-
+    item.version++;
     if (expiry_ms == -1)
     {
         item.expiry = std::chrono::steady_clock::time_point::max();
@@ -56,7 +56,6 @@ void Cache<KeyType, ValueType>::put(const KeyType &key, const ValueType &value, 
 
         pq.push({item.expiry, key});
     }
-
     m_cache_storage[key] = item;
 }
 
@@ -69,8 +68,20 @@ void Cache<KeyType, ValueType>::updateValue(const KeyType &key, const ValueType 
 
     if (it != m_cache_storage.end())
     {
+        it->second.version++;
         it->second.value = value;
     }
+}
+template <typename KeyType, typename ValueType>
+uint64_t getVersion(const KeyType &key){
+    std::lock_guard<std::mutex> lock(mtx);
+    auto it = m_cache_storage.find(key);
+
+    if (it == m_cache_storage.end())
+    {
+        return 0;
+    }
+    return it->second.version;
 }
 
 template <typename KeyType, typename ValueType>

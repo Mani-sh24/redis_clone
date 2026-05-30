@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
-
+#include "cache/Cache.hpp"
 enum class RespType
 {
     STRING,
@@ -29,10 +29,15 @@ struct ParseResults {
     bool has_expiry = false;  
     std::chrono::steady_clock::duration ttl{0};
 };
+struct WatchedItem {
+    string_view key;
+    uint64_t version = 0;
+};
 struct ClientState {
     int fd;
     std::string accumulator;
     bool in_multi = false;
     std::vector<RespValue> tx_queue;
+    std::vector<WatchedItem> watchlist;
 };
 #endif // RESP_TYPES_HPP
