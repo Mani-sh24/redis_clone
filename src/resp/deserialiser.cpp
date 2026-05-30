@@ -1,18 +1,25 @@
 #include "resp/deserialiser.hpp"
+#include "utils/string_helpers.hpp"
 #include <vector>
 #include <string>
+#include <string_view>
 #include <iostream>
 
 using namespace std;
 
-pair<RespValue, int> parse_bulk_strings(string text, int pos)
+pair<RespValue, int> parse_bulk_strings(string_view text, int pos)
 {
     // $5\r\nhello\r\n
     int original = pos - 1;
     int crlf = text.find("\r\n", pos);
-    if (crlf == string::npos)
+    if (crlf == string_view::npos)
         return {{}, -1};
-    int len = stoi(text.substr(pos, crlf - pos));
+    
+    auto parsed_len = parse_int(text.substr(pos, crlf - pos));
+    if (!parsed_len)
+        return {{}, -1};
+    int len = *parsed_len;
+
     if (len == -1)
     {
         RespValue result;
@@ -33,11 +40,11 @@ pair<RespValue, int> parse_bulk_strings(string text, int pos)
     return {result, end - original};
 }
 
-pair<RespValue, int> parse_string(string text, int pos)
+pair<RespValue, int> parse_string(string_view text, int pos)
 {
     int original = pos - 1;
     int crlf = text.find("\r\n", pos);
-    if (crlf == string::npos)
+    if (crlf == string_view::npos)
         return {{}, -1};
     int len = crlf - pos;
     int start = pos;
@@ -53,11 +60,11 @@ pair<RespValue, int> parse_string(string text, int pos)
     return {result, end - original};
 }
 
-pair<RespValue, int> parse_simple_errors(string text, int pos)
+pair<RespValue, int> parse_simple_errors(string_view text, int pos)
 {
     int original = pos - 1;
     int crlf = text.find("\r\n", pos);
-    if (crlf == string::npos)
+    if (crlf == string_view::npos)
         return {{}, -1};
     int start = pos;
     int len = crlf - pos;
@@ -72,12 +79,12 @@ pair<RespValue, int> parse_simple_errors(string text, int pos)
     return {result, end - original};
 }
 
-pair<RespValue, int> parse_integers(string text, int pos)
+pair<RespValue, int> parse_integers(string_view text, int pos)
 {
     int original = pos - 1;
 
     int crlf = text.find("\r\n", pos);
-    if (crlf == string::npos)
+    if (crlf == string_view::npos)
         return {{}, -1};
 
     if (crlf == pos)
@@ -86,21 +93,28 @@ pair<RespValue, int> parse_integers(string text, int pos)
     int start = pos;
     RespValue result;
     result.type = RespType::INTEGER;
-    result.integer = stoi(text.substr(pos, crlf - pos));
+    
+    auto parsed_val = parse_int(text.substr(pos, crlf - pos));
+    if (!parsed_val)
+        return {{}, -1};
+    result.integer = *parsed_val;
     int end = crlf + 2;
     return {result, end - original};
     // cout << start;
 }
 
-pair<RespValue, int> parse_array(string text, int pos)
+pair<RespValue, int> parse_array(string_view text, int pos)
 {
     int original = pos - 1;
 
     int crlf = text.find("\r\n", pos);
-    if (crlf == string::npos)
+    if (crlf == string_view::npos)
         return {{}, -1};
 
-    int len = stoi(text.substr(pos, crlf - pos));
+    auto parsed_len = parse_int(text.substr(pos, crlf - pos));
+    if (!parsed_len)
+        return {{}, -1};
+    int len = *parsed_len;
     int cursor = crlf + 2;
 
     // null array
@@ -128,7 +142,7 @@ pair<RespValue, int> parse_array(string text, int pos)
     return {result, cursor - original};
 }
 
-pair<RespValue, int> process_parser(string buffer, int offset)
+pair<RespValue, int> process_parser(string_view buffer, int offset)
 {
     if (offset >= buffer.size())
         return {{}, -1};

@@ -2,11 +2,12 @@
 #include <cctype>
 #include <charconv>
 
-std::string to_upper(std::string s)
+std::string to_upper(std::string_view s)
 {
-    for (auto &c : s)
+    std::string result(s);
+    for (auto &c : result)
         c = toupper(c);
-    return s;
+    return result;
 }
 
 std::optional<int> parse_int(std::string_view str)

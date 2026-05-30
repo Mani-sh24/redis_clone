@@ -1,8 +1,8 @@
 #ifndef UTILS_AOF_HPP
 #define UTILS_AOF_HPP
 
-#include <string>
+#include <string_view>
 
-void record(std::string command);
+void record(std::string_view command);
 
 #endif // UTILS_AOF_HPP
