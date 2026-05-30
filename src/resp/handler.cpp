@@ -53,6 +53,19 @@ string handle_value(const RespValue &value, ClientState &client)
       err.str = "ERR EXEC without MULTI";
       return serialise(err);
     }
+    for (auto c:client.watchlist)
+    {
+      if (c.version != storage.getVersion(c.key))
+      {
+          client.tx_queue.clear();
+            client.watchlist.clear();
+            client.in_multi = false;
+            RespValue res;
+            res.type = RespType::NIL;
+            return serialise(res);
+      }
+    }
+    
     client.in_multi = false;
     string res = "*" + to_string(client.tx_queue.size()) + "\r\n";
     for (const auto &cmd_val : client.tx_queue)
@@ -72,7 +85,7 @@ string handle_value(const RespValue &value, ClientState &client)
   return execute_cmd(value);
 }
 
-string execute_cmd(const RespValue &value){
+string execute_cmd(const RespValue &value , ClientState &client){
   string response;
 
   if (value.type != RespType::ARRAY || value.array.empty())
@@ -112,7 +125,7 @@ string execute_cmd(const RespValue &value){
     return incr_by(value, storage, response) ? response : response;
   }
   else if(command == "WATCH" && value.array.size() >=1){
-    return ;
+    return watch(value , storage , response , client)? response :response;
   }
   else
   {
