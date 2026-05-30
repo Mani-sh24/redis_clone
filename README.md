@@ -20,6 +20,7 @@ A high-performance, multithreaded Redis-like in-memory key-value data store impl
   - `MULTI` — Starts a transaction block where subsequent commands are queued.
   - `EXEC` — Executes all queued commands in the transaction block.
   - `DISCARD` — Discards all queued commands in the transaction block.
+  - `WATCH` - Implements Optimistic Locking.
 - **Append-Only File (AOF) Logging**: Saves client request buffers to `logs.txt` for auditing and history tracking.
 
 ### TTL (Time-To-Live) Specification
