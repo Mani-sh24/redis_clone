@@ -41,10 +41,17 @@ template <typename KeyType, typename ValueType>
 void Cache<KeyType, ValueType>::put(const KeyType &key, const ValueType &value, long long expiry_ms)
 {
     std::lock_guard<std::mutex> lock(mtx);
+    
+    uint64_t next_version = 1;
+    auto it = m_cache_storage.find(key);
+    if (it != m_cache_storage.end())
+    {
+        next_version = it->second.version + 1;
+    }
 
     CacheItem<ValueType> item;
     item.value = value;
-    item.version++;
+    item.version = next_version;
     if (expiry_ms == -1)
     {
         item.expiry = std::chrono::steady_clock::time_point::max();
