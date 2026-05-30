@@ -5,6 +5,6 @@
 #include <string>
 
 std::string handle_value(const RespValue &value, ClientState &client);
-std::string execute_cmd(const RespValue &value);
+std::string execute_cmd(const RespValue &value , ClientState &Client);
 
 #endif // RESP_HANDLER_HPP

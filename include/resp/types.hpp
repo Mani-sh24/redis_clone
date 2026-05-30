@@ -30,8 +30,8 @@ struct ParseResults {
     std::chrono::steady_clock::duration ttl{0};
 };
 struct WatchedItem {
-    string key;
-    uint64_t version = 0;
+    std::string key;
+    uint64_t version = 1;
 };
 struct ClientState {
     int fd;

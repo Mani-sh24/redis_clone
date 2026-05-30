@@ -13,7 +13,7 @@ struct CacheItem
 {
     Value value;
     std::chrono::steady_clock::time_point expiry;
-    uint64_t version;
+    uint64_t version = 1;
 };
 
 template <typename KeyType, typename ValueType>
@@ -41,12 +41,12 @@ public:
     void startCleaner();
     void put(const KeyType &key, const ValueType &value, long long expiry_ms = -1);
     void updateValue(const KeyType &key, const ValueType &value);
+    uint64_t getVersion(const KeyType &key);
     ValueType get(const KeyType &key);
     bool exists(const KeyType &key);
     void cleanExpired();
     void stopCleaner();
     void remove(const KeyType &key);
-    uint64_t getVersion(const KeyType &key)
     ~Cache();
 };
 

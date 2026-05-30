@@ -231,34 +231,34 @@ bool incr_by(const RespValue &value, Cache<string, string> &storage, string &res
     response = serialise(res);
     return true;
 }
-bool watch(const RespValue &value, Cache<string, string> &storage, string &response, ClientState &client){
-    RespValue res;
+// bool watch(const RespValue &value, Cache<string, string> &storage, string &response, ClientState &client){
+//     RespValue res;
 
-    if (value.type != RespType::ARRAY || value.array.size() < 2)
-    {
-        res.type = RespType::ERROR;
-        res.str = "Error invalid arguments!";
-        response = serialise(res);
-        return false;
-    }
+//     if (value.type != RespType::ARRAY || value.array.size() < 2)
+//     {
+//         res.type = RespType::ERROR;
+//         res.str = "Error invalid arguments!";
+//         response = serialise(res);
+//         return false;
+//     }
 
-    if (value.array[1].type != RespType::BULK)
-    {
-        res.type = RespType::ERROR;
-        res.str = "Error invalid arguments!";
-        response = serialise(res);
-        return false;
-    }
-    for (int i = 1; i < value.array.size(); i++)
-    {
-        client.watchlist.push_back({storage.get(value.array[i].str) , storage.getVersion(value.array[i].str)});
-    }
-    res.type = RespType::STRING;
-    res.str = "Ok";
-    response = serialise(res);
-    return true;
+//     if (value.array[1].type != RespType::BULK)
+//     {
+//         res.type = RespType::ERROR;
+//         res.str = "Error invalid arguments!";
+//         response = serialise(res);
+//         return false;
+//     }
+//     for (int i = 1; i < value.array.size(); i++)
+//     {
+//         client.watchlist.push_back({ value.array[i].str , storage.getVersion(value.array[i].str)});
+//     }
+//     res.type = RespType::STRING;
+//     res.str = "OK";
+//     response = serialise(res);
+//     return true;
     
-}
+// }
 ParseResults parse_set_options(const vector<RespValue> &args)
 {
     ParseResults result;

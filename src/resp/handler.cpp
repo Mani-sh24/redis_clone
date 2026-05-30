@@ -41,6 +41,7 @@ string handle_value(const RespValue &value, ClientState &client)
       return serialise(err);
     }
     client.tx_queue.clear();
+    client.watchlist.clear();
     client.in_multi = false;
     return "+OK\r\n";
   }
@@ -70,10 +71,24 @@ string handle_value(const RespValue &value, ClientState &client)
     string res = "*" + to_string(client.tx_queue.size()) + "\r\n";
     for (const auto &cmd_val : client.tx_queue)
     {
-      res += execute_cmd(cmd_val);
+      res += execute_cmd(cmd_val , client);
     }
     client.tx_queue.clear();
+    client.watchlist.clear();
     return res;
+  }else if(command == "WATCH"){
+    if(client.in_multi)
+    {
+      RespValue err;
+      err.type = RespType::ERROR;
+      err.str = "ERR Watch calls can not be inside MULTI";
+      return serialise(err);
+    }
+        for (int i = 1; i < value.array.size(); i++)
+    {
+        client.watchlist.push_back({ value.array[i].str , storage.getVersion(value.array[i].str)});
+    }
+    return "+OK\r\n";
   }
 
   if (client.in_multi)
@@ -82,7 +97,7 @@ string handle_value(const RespValue &value, ClientState &client)
     return "+QUEUED\r\n";
   }
 
-  return execute_cmd(value);
+  return execute_cmd(value , client);
 }
 
 string execute_cmd(const RespValue &value , ClientState &client){
@@ -124,9 +139,7 @@ string execute_cmd(const RespValue &value , ClientState &client){
   {
     return incr_by(value, storage, response) ? response : response;
   }
-  else if(command == "WATCH" && value.array.size() >=1){
-    return watch(value , storage , response , client)? response :response;
-  }
+
   else
   {
     RespValue err;

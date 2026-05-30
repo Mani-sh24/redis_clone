@@ -73,7 +73,8 @@ void Cache<KeyType, ValueType>::updateValue(const KeyType &key, const ValueType 
     }
 }
 template <typename KeyType, typename ValueType>
-uint64_t getVersion(const KeyType &key){
+uint64_t Cache<KeyType , ValueType>::getVersion(const KeyType &key){
+    
     std::lock_guard<std::mutex> lock(mtx);
     auto it = m_cache_storage.find(key);
 
