@@ -89,6 +89,9 @@ string handle_value(const RespValue &value, ClientState &client)
         client.watchlist.push_back({ value.array[i].str , storage.getVersion(value.array[i].str)});
     }
     return "+OK\r\n";
+  }else if(command == "UNWATCH"){
+    client.watchlist.clear();
+    return "+OK\r\n";
   }
 
   if (client.in_multi)
