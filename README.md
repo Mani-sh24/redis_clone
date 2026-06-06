@@ -21,7 +21,7 @@ A high-performance, multithreaded Redis-like in-memory key-value data store impl
   - `EXEC` — Executes all queued commands in the transaction block.
   - `DISCARD` — Discards all queued commands in the transaction block.
   - `WATCH` - Implements Optimistic Locking.
-  - 'UNWATCH' - Clears Watch queue.
+  - `UNWATCH` - Clears Watch queue.
 
 ### TTL (Time-To-Live) Specification
 
